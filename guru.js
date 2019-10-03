@@ -258,6 +258,19 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			});
 		}
 		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && slots.segmentoMentor && slots.interesseMentor && !slots.desafioMentor){
+			const interesse_input = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
+			dbSegmento.where('sinonimos', 'array-contains', slots.segmentoMentor).get().then(snapshot => {
+				if (snapshot.size > 0) {
+					const campos = snapshot.data();
+					interesse_input.forEach(interesse => {
+						if(!campos.interesses.includes(interesse)){
+							let arrUnion = doc_segmentoRef.update({
+								interesses: admin.firestore.FieldValue.arrayUnion(interesse)
+							});
+						}
+					});
+				}
+			});
 			agent.add(`Descreva algum desafio que você solucionou em sua carreira.`);
 		}
 		else if (slots.segmentoMentor && slots.interesseMentor && slots.desafioMentor && !slots.condicoesMentor) {
@@ -268,10 +281,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		else {
 			mentor.ID_MENTOR = user.ID_USER;
 			mentor.SEGMENTO = slots.segmentoMentor;
-			mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim());
+			mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
 			mentor.CONDITION = slots.condicoesMentor;
 			dbMentor.add(mentor);
-			agent.add(`Obrigado por fazer parte do nosso team!`);
+			agent.add(`Obrigado por fazer parte do nosso team!!!`);
 		}
 	}
 
