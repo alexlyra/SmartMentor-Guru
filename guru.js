@@ -183,7 +183,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			PAGE_REFERER: '',
 			REMOTE_HOST: '',
 			SEGMENTO: '',
-			SITE: ''
+			SITE: '',
+			CONDITION: ''
 		};
 
 		if (!slots.nomeMentor) {
@@ -265,6 +266,11 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(new Suggestion(`Pago`));
 		} 
 		else {
+			mentor.ID_MENTOR = user.ID_USER;
+			mentor.SEGMENTO = slots.segmentoMentor;
+			mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim());
+			mentor.CONDITION = slots.condicoesMentor;
+			dbMentor.add(mentor);
 			agent.add(`Obrigado por fazer parte do nosso team!`);
 		}
 	}
