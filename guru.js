@@ -267,18 +267,19 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		}
 		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && slots.segmentoMentor && slots.interesseMentor && !slots.desafioMentor){
 			const interesse_input = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
-			dbSegmento.where('sinonimos', 'array-contains', slots.segmentoMentor).get().then(snapshot => {
+			/*dbSegmento.where('sinonimos', 'array-contains', slots.segmentoMentor).get().then(snapshot => {
 				if (snapshot.size > 0) {
 					const campos = snapshot.data();
 					interesse_input.forEach(interesse => {
 						if(!campos.interesses.includes(interesse)){
+							const doc_segmentoRef = dbSegmento.doc(campos.sinonimos[0]);
 							let arrUnion = doc_segmentoRef.update({
 								interesses: admin.firestore.FieldValue.arrayUnion(interesse)
 							});
 						}
 					});
 				}
-			});
+			});*/
 			agent.add(`Descreva algum desafio que você solucionou em sua carreira.`);
 		}
 		else if (slots.segmentoMentor && slots.interesseMentor && slots.desafioMentor && !slots.condicoesMentor) {
