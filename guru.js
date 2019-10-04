@@ -45,12 +45,20 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			Segmento: Segmento,
 			Problema: Problema
 		};
-		let missingSlots = [];
-
-		if (!nomeEmpresa) { missingSlots.push('nomeEmpresa'); }
-		if (!tamanhoEmpresa) { missingSlots.push('tamanhoEmpresa'); }
-		if (!Segmento) { missingSlots.push('Segmento'); }
-		if (!Problema) { missingSlots.push('Problema'); }
+		let user = {
+			CELULAR: '',
+			CIDADE: '',
+			EMAIL: '',
+			EMPRESA: '',
+			ENDERECO: '',
+			FONE: '',
+			ID_USER: 1,
+			IP_ADDRESS: '',
+			LINKEDIN: '',
+			NAME: '',
+			STATUS: 'active',
+			USER_AGENT: ''
+		};
 
 		if (!slots.nomeEmpresa){
 			agent.add(`Vamos coletar informações sobre o seu desafio para enviar ao nosso Guru e  nosso Time de Mentores.`);
