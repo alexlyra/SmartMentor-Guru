@@ -233,7 +233,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 				user.NAME = slots.nomeMentor;
 				user.EMAIL = slots.emailMentor;
 				user.CELULAR = slots.telMentor;
-				dbUsers.add(user);
+				//dbUsers.add(user);
+				console.log(user);
 			});
 			return dbSegmento.limit(4).get().then(snapshot => {
 				agent.add(`Escreva o segmento que está relacionado a sua área de atuação. Se preferir, adicione um novo.`);
@@ -288,11 +289,19 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(new Suggestion(`Pago`));
 		} 
 		else {
-			mentor.ID_MENTOR = user.ID_USER;
+			dbUsers.where('EMAIL','==',slots.emailMentor).get().then(snapshot => {
+				if (snapshot.size > 0) {
+					snapshot.forEach(doc => {
+						let user_ = doc.data();
+						mentor.ID_MENTOR = user_.ID_USER;
+					});
+				}
+			});
 			mentor.SEGMENTO = slots.segmentoMentor;
 			mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
 			mentor.CONDITION = slots.condicoesMentor;
-			dbMentor.add(mentor);
+			//dbMentor.add(mentor);
+			console.log(mentor);
 			agent.add(`Obrigado por fazer parte do nosso team!!!`);
 		}
 	}
