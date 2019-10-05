@@ -262,9 +262,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 							}
 						});
 					});
-					snapshot.forEach(doc => {
-						console.log(doc.data());
-					});
 				}
 			});
 			agent.add(`Descreva algum desafio que você solucionou em sua carreira.`);
