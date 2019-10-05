@@ -203,27 +203,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(`Qual é o seu e-mail de contato?`);
 		}
 		else if (slots.nomeMentor && slots.emailMentor && !slots.telMentor) {
-			return dbUsers.where('EMAIL', '==', slots.emailMentor).get().then(snapshot => {
-				if(snapshot > 0) {
-					const cadastro = {
-						'name': 'cadastro',
-						'lifespan': 20,
-						'parameters': {
-							'nomeMentor': slots.nomeMentor,
-							'emailMentor': slots.emailMentor,
-							'telMentor': 'NaN',
-							'segmentoMentor': 'NaN',
-							'interesseMentor': 'NaN',
-							'desafioMentor': 'NaN',
-							'condicoesMentor': 'NaN'
-						}
-					};
-					agent.setContext(cadastro);
-				}
-				else {
-					agent.add(`E por ultímo, qual é o seu celular de contato? (e.x: (ddd) 99999-9999)`);
-				}
-			});
+			agent.add(`E por ultímo, qual é o seu celular de contato? (e.x: (ddd) 99999-9999)`);
 		}
 		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && !slots.segmentoMentor){
 			dbUsers.get().then(snapshot => {
@@ -247,7 +227,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			});
 		}
 		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && slots.segmentoMentor && !slots.interesseMentor){
-			return dbSegmento.where('sinonimos','array-contains', slots.segmentoMentor).get().then(snapshot => {
+			return dbSegmento.where('sinonimos','array-contains', slots.segmentoMentor.trim().toLowerCase()).get().then(snapshot => {
 				agent.add('Selecione a área de interesse que tenha relação com sua área de atuação.');
 				agent.add('Caso seja mais de um interesse, escreva-os separando com vírgula.');
 				if(snapshot.size > 0) {
@@ -258,8 +238,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					});
 				}
 				else {
-					dbSegmento.doc(slots.segmentoMentor).set({
-						sinonimos: [slots.segmentoMentor],
+					dbSegmento.doc(slots.segmentoMentor.trim().toLowerCase()).set({
+						sinonimos: [slots.segmentoMentor.trim().toLowerCase()],
 						interesses: []
 					});
 				}
