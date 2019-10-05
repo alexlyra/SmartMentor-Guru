@@ -203,7 +203,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(`Qual é o seu e-mail de contato?`);
 		}
 		else if (slots.nomeMentor && slots.emailMentor && !slots.telMentor) {
-			return dbUsers.where('EMAIL' == slots.emailMentor).get().then(snapshot => {
+			return dbUsers.where('EMAIL', '==', slots.emailMentor).get().then(snapshot => {
 				if(snapshot > 0) {
 					const cadastro = {
 						'name': 'cadastro',
@@ -294,6 +294,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					snapshot.forEach(doc => {
 						let user_ = doc.data();
 						mentor.ID_MENTOR = user_.ID_USER;
+						console.log("CHAMADA DO USUÁRIO: ");
+						console.log(user_);
 					});
 				}
 			});
