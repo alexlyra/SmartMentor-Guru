@@ -203,7 +203,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(`Qual é o seu e-mail de contato?`);
 		}
 		else if (slots.nomeMentor && slots.emailMentor && !slots.telMentor) {
-			agent.add(`E por ultímo, qual é o seu celular de contato? (e.x: (ddd) 99999-9999)`);
+			agent.add(`E por ultímo, qual é o seu celular de contato? (e.x: ddd9xxxxxxxx)`);
 		}
 		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && !slots.segmentoMentor){
 			dbUsers.get().then(snapshot => {
@@ -250,12 +250,14 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		}
 		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && slots.segmentoMentor && slots.interesseMentor && !slots.desafioMentor){
 			const interesse_input = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
+			let segmento_input = slots.segmentoMentor.trim().toLowerCase();
 
-			dbSegmento.where('sinonimos', 'array-contains', slots.segmentoMentor).get().then(snapshot => {
+			dbSegmento.where('sinonimos', 'array-contains', segmento_input).get().then(snapshot => {
 				if (snapshot.size > 0) {
 					snapshot.forEach(doc => {
 						const campos = doc.data();
 						interesse_input.forEach(interesse => {
+							console.log(`INSERT IN ${campos.sinonimos[0]} interesse = ${interesse}`);
 							if(!campos.interesses.includes(interesse)) {
 								const doc_segmentoRef = dbSegmento.doc(campos.sinonimos[0]);
 								let arrayUnion = doc_segmentoRef.update({
@@ -280,11 +282,11 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 						let user_ = doc.data();
 						mentor.ID_MENTOR = user_.ID_USER;
 						console.log("CHAMADA DO USUÁRIO: ");
-						console.log(user_);
+						console.log(`ID MENTOR -> USER: ${mentor.ID_MENTOR}`);
 					});
 				}
 			});
-			mentor.SEGMENTO = slots.segmentoMentor;
+			mentor.SEGMENTO = slots.segmentoMentor.trim().toLowerCase();
 			mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
 			mentor.CONDITION = slots.condicoesMentor;
 			//dbMentor.add(mentor);
