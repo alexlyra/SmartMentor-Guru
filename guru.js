@@ -214,7 +214,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 				user.EMAIL = slots.emailMentor;
 				user.CELULAR = slots.telMentor;
 				//dbUsers.add(user);
-				console.log(user);
+				console.log("---	ADD USER IN DATABASE	---");
+				
 			});
 			return dbSegmento.limit(4).get().then(snapshot => {
 				agent.add(`Escreva o segmento que está relacionado a sua área de atuação. Se preferir, adicione um novo.`);
@@ -227,7 +228,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			});
 		}
 		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && slots.segmentoMentor && !slots.interesseMentor){
-			return dbSegmento.where('sinonimos','array-contains', slots.segmentoMentor.trim().toLowerCase()).get().then(snapshot => {
+			let segmento_input = slots.segmentoMentor.trim().toLowerCase();
+			return dbSegmento.where('sinonimos','array-contains', segmento_input).get().then(snapshot => {
 				agent.add('Selecione a área de interesse que tenha relação com sua área de atuação.');
 				agent.add('Caso seja mais de um interesse, escreva-os separando com vírgula.');
 				if(snapshot.size > 0) {
@@ -238,8 +240,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					});
 				}
 				else {
-					dbSegmento.doc(slots.segmentoMentor.trim().toLowerCase()).set({
-						sinonimos: [slots.segmentoMentor.trim().toLowerCase()],
+					dbSegmento.doc(segmento_input).set({
+						sinonimos: [segmento_input],
 						interesses: []
 					});
 				}
