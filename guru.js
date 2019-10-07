@@ -213,9 +213,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 				user.NAME = slots.nomeMentor;
 				user.EMAIL = slots.emailMentor;
 				user.CELULAR = slots.telMentor;
-				//dbUsers.add(user);
-				console.log("---	ADD USER IN DATABASE	---");
-				
+				dbUsers.add(user);
+				//console.log("---	ADD USER IN DATABASE	---");
 			});
 			return dbSegmento.limit(4).get().then(snapshot => {
 				agent.add(`Escreva o segmento que está relacionado a sua área de atuação. Se preferir, adicione um novo.`);
@@ -257,7 +256,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					snapshot.forEach(doc => {
 						const campos = doc.data();
 						interesse_input.forEach(interesse => {
-							console.log(`INSERT IN ${campos.sinonimos[0]} interesse = ${interesse}`);
 							if(!campos.interesses.includes(interesse)) {
 								const doc_segmentoRef = dbSegmento.doc(campos.sinonimos[0]);
 								let arrayUnion = doc_segmentoRef.update({
