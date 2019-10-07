@@ -215,7 +215,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 				user.CELULAR = slots.telMentor;
 				//dbUsers.add(user);
 				console.log("---	ADD USER IN DATABASE	---");
-				
 			});
 			return dbSegmento.limit(4).get().then(snapshot => {
 				agent.add(`Escreva o segmento que está relacionado a sua área de atuação. Se preferir, adicione um novo.`);
@@ -281,16 +280,18 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					snapshot.forEach(doc => {
 						let user_ = doc.data();
 						mentor.ID_MENTOR = user_.ID_USER;
-						console.log("CHAMADA DO USUÁRIO: ");
-						console.log(`ID MENTOR -> USER: ${mentor.ID_MENTOR}`);
+						console.log("Entrou no snapshot => doc");
 					});
 				}
+				else {
+					console.log("Não conseguiu encontrar snapshots");
+				}
 			});
-			mentor.SEGMENTO = slots.segmentoMentor.trim().toLowerCase();
-			mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
-			mentor.CONDITION = slots.condicoesMentor;
+			//mentor.SEGMENTO = slots.segmentoMentor.trim().toLowerCase();
+			//mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
+			//mentor.CONDITION = slots.condicoesMentor;
 			//dbMentor.add(mentor);
-			console.log(mentor);
+			//console.log(mentor);
 			agent.add(`Obrigado por fazer parte do nosso team!!!`);
 		}
 	}
