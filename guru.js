@@ -213,8 +213,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 				user.NAME = slots.nomeMentor;
 				user.EMAIL = slots.emailMentor;
 				user.CELULAR = slots.telMentor;
-				//dbUsers.add(user);
-				console.log("---	ADD USER IN DATABASE	---");
+				dbUsers.add(user);
+				//console.log("---	ADD USER IN DATABASE	---");
+				//console.log(user);
 			});
 			return dbSegmento.limit(4).get().then(snapshot => {
 				agent.add(`Escreva o segmento que está relacionado a sua área de atuação. Se preferir, adicione um novo.`);
@@ -256,7 +257,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					snapshot.forEach(doc => {
 						const campos = doc.data();
 						interesse_input.forEach(interesse => {
-							console.log(`INSERT IN ${campos.sinonimos[0]} interesse = ${interesse}`);
+							//console.log(`INSERT IN ${campos.sinonimos[0]} interesse = ${interesse}`);
 							if(!campos.interesses.includes(interesse)) {
 								const doc_segmentoRef = dbSegmento.doc(campos.sinonimos[0]);
 								let arrayUnion = doc_segmentoRef.update({
@@ -276,23 +277,27 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		} 
 		else {
 			dbUsers.where('EMAIL','==',slots.emailMentor).get().then(snapshot => {
-				console.log(`EMAIL == ${slots.emailMentor} ->`);
+				//console.log(`EMAIL == ${slots.emailMentor} ->`);
 				if (snapshot.size > 0) {
 					snapshot.forEach(doc => {
-						let user_ = doc.data();
+						//console.log("Entrou no snapshot => doc");
+						//console.log("Pegou usuário:::");
+						const user_ = doc.data();
+						//console.log(user_);
 						mentor.ID_MENTOR = user_.ID_USER;
-						console.log("Entrou no snapshot => doc");
+						//console.log(`ID DO USER: ${user_.ID_USER} E ID DO MENTOR: ${mentor.ID_MENTOR}`);
 					});
 				}
 				else {
 					console.log("Não conseguiu encontrar snapshots");
 				}
+				mentor.SEGMENTO = slots.segmentoMentor.trim().toLowerCase();
+				mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
+				mentor.CONDITION = slots.condicoesMentor;
+				dbMentor.add(mentor);
+				//console.log("Mentor adicionado: --->");
+				//console.log(mentor);
 			});
-			//mentor.SEGMENTO = slots.segmentoMentor.trim().toLowerCase();
-			//mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
-			//mentor.CONDITION = slots.condicoesMentor;
-			//dbMentor.add(mentor);
-			//console.log(mentor);
 			agent.add(`Obrigado por fazer parte do nosso team!!!`);
 		}
 	}
