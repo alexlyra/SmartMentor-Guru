@@ -276,6 +276,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		} 
 		else {
 			dbUsers.where('EMAIL','==',slots.emailMentor).get().then(snapshot => {
+				console.log(`EMAIL == ${slots.emailMentor} ->`);
 				if (snapshot.size > 0) {
 					snapshot.forEach(doc => {
 						let user_ = doc.data();
