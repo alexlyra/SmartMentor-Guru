@@ -147,12 +147,13 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		const dbUsers = db.collection('Users');
 		const dbMentor = db.collection('mentorValidation');
 		const dbProjeto = db.collection('projeto');
-		const [nomeMentor, emailMentor, telMentor, segmentoMentor, interesseMentor, desafioMentor, condicoesMentor] = [
+		const [nomeMentor, emailMentor, telMentor, segmentoMentor, interesseMentor, tituloDesafio, desafioMentor, condicoesMentor] = [
 			agent.parameters.nomeMentor,
 			agent.parameters.emailMentor,
 			agent.parameters.telMentor,
 			agent.parameters.segmentoMentor,
 			agent.parameters.interesseMentor,
+			agent.parameters.tituloDesafio,
 			agent.parameters.desafioMentor,
 			agent.parameters.condicoesMentor
 		];
@@ -194,6 +195,16 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			SITE: '',
 			CONDITION: ''
 		};
+		let projeto = {
+			nome: "",
+			desafio: [],
+			id_mentor: 1,
+			id_user: 0,
+			interesses: "",
+			segmento: "",
+			solucao: "",
+			status: "resolvido"
+		};
 
 		if (!slots.nomeMentor) {
 			agent.add(`Antes de começar, gostaria de pedir algumas de suas informações.`);
@@ -215,6 +226,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 				user.CELULAR = slots.telMentor;
 				dbUsers.add(user);
 				//console.log("---	ADD USER IN DATABASE	---");
+				//console.log(user);
 			});
 			return dbSegmento.limit(4).get().then(snapshot => {
 				agent.add(`Escreva o segmento que está relacionado a sua área de atuação. Se preferir, adicione um novo.`);
@@ -247,7 +259,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 				agent.add("");
 			});
 		}
-		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && slots.segmentoMentor && slots.interesseMentor && !slots.desafioMentor){
+		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && slots.segmentoMentor && slots.interesseMentor && !slots.tituloDesafio){
 			const interesse_input = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
 			let segmento_input = slots.segmentoMentor.trim().toLowerCase();
 
@@ -256,7 +268,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					snapshot.forEach(doc => {
 						const campos = doc.data();
 						interesse_input.forEach(interesse => {
+							console.log(`TRY INSERT IN ${campos.sinonimos[0]} interesse = ${interesse}`);
 							if(!campos.interesses.includes(interesse)) {
+								console.log(`INSERTED -> ${interesse}`);
 								const doc_segmentoRef = dbSegmento.doc(campos.sinonimos[0]);
 								let arrayUnion = doc_segmentoRef.update({
 									interesses: admin.firestore.FieldValue.arrayUnion(interesse)
@@ -266,7 +280,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					});
 				}
 			});
-			agent.add(`Descreva algum desafio que você solucionou em sua carreira.`);
+			agent.add(`Resuma algum desafio que você já solucionou em sua carreira em uma unica frase.`);
+		}
+		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && slots.segmentoMentor && slots.interesseMentor && slots.tituloDesafio && !slots.desafioMentor) {
+			agent.add(`Descreva com detalhe o desafio.`);
 		}
 		else if (slots.segmentoMentor && slots.interesseMentor && slots.desafioMentor && !slots.condicoesMentor) {
 			agent.add(`Escolha as condiçõs da sua mentoria:`);
@@ -275,20 +292,34 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		} 
 		else {
 			dbUsers.where('EMAIL','==',slots.emailMentor).get().then(snapshot => {
+				console.log(`EMAIL == ${slots.emailMentor} ->`);
+				let id_get;
 				if (snapshot.size > 0) {
 					snapshot.forEach(doc => {
-						let user_ = doc.data();
+						const user_ = doc.data();
 						mentor.ID_MENTOR = user_.ID_USER;
-						console.log("CHAMADA DO USUÁRIO: ");
-						console.log(`ID MENTOR -> USER: ${mentor.ID_MENTOR}`);
+						projeto.id_mentor = user_.ID_USER;
+						console.log("Entrou no snapshot => doc");
+						console.log("Pegou usuário:::");
+						console.log(user_);
+						console.log(`ID DO USER: ${user_.ID_USER} E ID DO MENTOR: ${mentor.ID_MENTOR}`);
 					});
 				}
+				else {
+					console.log("Não conseguiu encontrar snapshots");
+				}
+				mentor.SEGMENTO = slots.segmentoMentor.trim().toLowerCase();
+				mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
+				mentor.CONDITION = slots.condicoesMentor;
+				dbMentor.add(mentor);
+				projeto.desafio = [slots.tituloDesafio, slots.desafioMentor];
+				projeto.interesses = slots.interesseMentor;
+				projeto.segmento = slots.segmentoMentor.trim().toLowerCase();
+				projeto.solucao = slots.solucaoDesafio;
+
+				console.log("Mentor adicionado: --->");
+				console.log(mentor);
 			});
-			mentor.SEGMENTO = slots.segmentoMentor.trim().toLowerCase();
-			mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
-			mentor.CONDITION = slots.condicoesMentor;
-			//dbMentor.add(mentor);
-			console.log(mentor);
 			agent.add(`Obrigado por fazer parte do nosso team!!!`);
 		}
 	}
