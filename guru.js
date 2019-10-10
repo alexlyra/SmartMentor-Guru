@@ -147,14 +147,14 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		const dbUsers = db.collection('Users');
 		const dbMentor = db.collection('mentorValidation');
 		const dbProjeto = db.collection('projeto');
-		const [nomeMentor, emailMentor, telMentor, segmentoMentor, interesseMentor, tituloDesafio, desafioMentor, condicoesMentor] = [
+		const [nomeMentor, emailMentor, telMentor, segmentoMentor, interesseMentor, tituloDesafio, descDesafio, condicoesMentor] = [
 			agent.parameters.nomeMentor,
 			agent.parameters.emailMentor,
 			agent.parameters.telMentor,
 			agent.parameters.segmentoMentor,
 			agent.parameters.interesseMentor,
 			agent.parameters.tituloDesafio,
-			agent.parameters.desafioMentor,
+			agent.parameters.descDesafio,
 			agent.parameters.condicoesMentor
 		];
 		let slots = {
@@ -163,7 +163,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			telMentor: telMentor,
 			segmentoMentor: segmentoMentor,
 			interesseMentor: interesseMentor,
-			desafioMentor: desafioMentor,
+			descDesafio: descDesafio,
 			condicoesMentor: condicoesMentor
 		};
 		let user = {
@@ -280,12 +280,13 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					});
 				}
 			});
+			
 			agent.add(`Resuma algum desafio que você já solucionou em sua carreira em uma unica frase.`);
 		}
-		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && slots.segmentoMentor && slots.interesseMentor && slots.tituloDesafio && !slots.desafioMentor) {
+		else if (slots.tituloDesafio && !slots.descDesafio) {
 			agent.add(`Descreva com detalhe o desafio.`);
 		}
-		else if (slots.segmentoMentor && slots.interesseMentor && slots.desafioMentor && !slots.condicoesMentor) {
+		else if (slots.segmentoMentor && slots.interesseMentor && slots.descDesafio && !slots.condicoesMentor) {
 			agent.add(`Escolha as condiçõs da sua mentoria:`);
 			agent.add(new Suggestion(`Gratuito`));
 			agent.add(new Suggestion(`Pago`));
@@ -312,7 +313,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 				mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
 				mentor.CONDITION = slots.condicoesMentor;
 				dbMentor.add(mentor);
-				projeto.desafio = [slots.tituloDesafio, slots.desafioMentor];
+				projeto.desafio = [slots.tituloDesafio, slots.descDesafio];
 				projeto.interesses = slots.interesseMentor;
 				projeto.segmento = slots.segmentoMentor.trim().toLowerCase();
 				projeto.solucao = slots.solucaoDesafio;
