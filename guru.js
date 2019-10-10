@@ -273,17 +273,17 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					snapshot.forEach(doc => {
 						const campos = doc.data();
 						interesse_input.forEach(interesse => {
-							console.log(`TRY INSERT IN ${campos.sinonimos[0]} interesse = ${interesse}`);
+							//console.log(`TRY INSERT IN ${campos.sinonimos[0]} interesse = ${interesse}`);
 							if(!campos.interesses.includes(interesse)) {
-								console.log(`INSERTED -> ${interesse}`);
+								//console.log(`INSERTED -> ${interesse}`);
 								const doc_segmentoRef = dbSegmento.doc(campos.sinonimos[0]);
 								let arrayUnion = doc_segmentoRef.update({
 									interesses: admin.firestore.FieldValue.arrayUnion(interesse)
 								});
 							}
-							else {
+							/*else {
 								console.log(`ALREADY HAS -> ${interesse}`);
-							}
+							}*/
 						});
 					});
 				}
@@ -306,7 +306,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		} 
 		else {
 			dbUsers.where('EMAIL','==',slots.emailMentor).get().then(snapshot => {
-				console.log(`EMAIL == ${slots.emailMentor} ->`);
+				//console.log(`EMAIL == ${slots.emailMentor} ->`);
 				let id_get;
 				if (snapshot.size > 0) {
 					snapshot.forEach(doc => {
@@ -314,15 +314,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 						mentor.ID_MENTOR = user_.ID_USER;
 						projeto.id_mentor = user_.ID_USER;
 						projeto.id_user = user_.ID_USER;
-						console.log("Entrou no snapshot => doc");
+						/*console.log("Entrou no snapshot => doc");
 						console.log("Pegou usuário:::");
 						console.log(user_);
-						console.log(`ID DO USER: ${user_.ID_USER} E ID DO MENTOR: ${mentor.ID_MENTOR}`);
+						console.log(`ID DO USER: ${user_.ID_USER} E ID DO MENTOR: ${mentor.ID_MENTOR}`);*/
 					});
 				}
-				else {
+				/*else {
 					console.log("Não conseguiu encontrar snapshots");
-				}
+				}*/
 				mentor.SEGMENTO = slots.segmentoMentor.trim().toLowerCase();
 				mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
 				mentor.CONDITION = slots.condicoesMentor;
@@ -334,16 +334,14 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 				projeto.nome = slots.nomeProjeto.trim();
 				dbProjeto.add(projeto);
 
-				console.log("Mentor adicionado: --->");
+				/*console.log("Mentor adicionado: --->");
 				console.log(mentor);
 				console.log("Projeto adicionado: --->");
-				console.log(projeto);
+				console.log(projeto);*/
 			});
 			agent.add(`Obrigado por fazer parte do nosso team!!!`);
 		}
 	}
-
-
 
 	// Map from Dialogflow intent names to functions to be run when the intent is matched
 	let intentMap = new Map();
