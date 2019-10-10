@@ -147,7 +147,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		const dbUsers = db.collection('Users');
 		const dbMentor = db.collection('mentorValidation');
 		const dbProjeto = db.collection('projeto');
-		const [nomeMentor, emailMentor, telMentor, segmentoMentor, interesseMentor, tituloDesafio, descDesafio, condicoesMentor] = [
+		const [nomeMentor, emailMentor, telMentor, segmentoMentor, interesseMentor, tituloDesafio, descDesafio, solucaoDesafio, condicoesMentor] = [
 			agent.parameters.nomeMentor,
 			agent.parameters.emailMentor,
 			agent.parameters.telMentor,
@@ -155,6 +155,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.parameters.interesseMentor,
 			agent.parameters.tituloDesafio,
 			agent.parameters.descDesafio,
+			agent.parameters.solucaoDesafio,
 			agent.parameters.condicoesMentor
 		];
 		let slots = {
@@ -164,6 +165,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			segmentoMentor: segmentoMentor,
 			interesseMentor: interesseMentor,
 			descDesafio: descDesafio,
+			tituloDesafio: tituloDesafio,
+			solucaoDesafio: solucaoDesafio,
 			condicoesMentor: condicoesMentor
 		};
 		let user = {
@@ -263,7 +266,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			const interesse_input = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
 			let segmento_input = slots.segmentoMentor.trim().toLowerCase();
 
-			dbSegmento.where('sinonimos', 'array-contains', segmento_input).get().then(snapshot => {
+			return dbSegmento.where('sinonimos', 'array-contains', segmento_input).get().then(snapshot => {
 				if (snapshot.size > 0) {
 					snapshot.forEach(doc => {
 						const campos = doc.data();
@@ -276,15 +279,20 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 									interesses: admin.firestore.FieldValue.arrayUnion(interesse)
 								});
 							}
+							else {
+								console.log(`ALREADY HAS -> ${interesse}`);
+							}
 						});
 					});
 				}
+				agent.add(`Resuma algum desafio que você já solucionou em sua carreira em uma unica frase.`);
 			});
-			
-			agent.add(`Resuma algum desafio que você já solucionou em sua carreira em uma unica frase.`);
 		}
 		else if (slots.tituloDesafio && !slots.descDesafio) {
 			agent.add(`Descreva com detalhe o desafio.`);
+		}
+		else if (slots.descDesafio && slots.solucaoDesafio) {
+			agent.add(`Qual solução você utilizou para este desafio?`);
 		}
 		else if (slots.segmentoMentor && slots.interesseMentor && slots.descDesafio && !slots.condicoesMentor) {
 			agent.add(`Escolha as condiçõs da sua mentoria:`);
@@ -317,9 +325,12 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 				projeto.interesses = slots.interesseMentor;
 				projeto.segmento = slots.segmentoMentor.trim().toLowerCase();
 				projeto.solucao = slots.solucaoDesafio;
+				dbProjeto.add(projeto);
 
 				console.log("Mentor adicionado: --->");
 				console.log(mentor);
+				console.log("Projeto adicionado: --->");
+				console.log(projeto);
 			});
 			agent.add(`Obrigado por fazer parte do nosso team!!!`);
 		}
