@@ -17,18 +17,15 @@
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
 	const agent = new WebhookClient({request: request, response: response});
 	//agent.requestSource = agent.ACTIONS_ON_GOOGLE;
-
 	function BoasVindas(agent) {
 		agent.add(`Olá! Sou o Guru e meu objetivo é ajudar a encontrar uma solução para o problema do seu negócio. Vamos começar ?`);
 		agent.add(new Suggestion(`Sim`));
 		agent.add(new Suggestion(`Não`));
 	}
-
 	function BoasVindasNo(agent) {
 		agent.add(`Ok. Me avise quando quiser começar.`);
 		agent.add(new Suggestion(`Vamos começar`));
 	}
-
 	function GetTipo(agent) {
 		agent.add(`O que você gostaria de fazer?`);
 		agent.add(new Suggestion(`Quero fazer parte`));
@@ -36,14 +33,29 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 	}
 
 	function GetEmpresa(agent) {
-		//let conv = agent.conv();
+		const dbConfig = db.collection('config');
 		const dbSegmento = db.collection('segmentos');
-		const [nomeEmpresa, tamanhoEmpresa, Segmento, Problema] = [agent.parameters.nomeEmpresa, agent.parameters.tamanhoEmpresa, agent.parameters.Segmento, agent.parameters.Problema];
+		const dbUsers = db.collection('Users');
+		const dbProjeto = db.collection('projeto');
+		const [emailUser, nomeUser, telUser, nomeEmpresa, tamanhoEmpresa, Segmento, Problema, Projeto] = [
+			agent.parameters.emailUser,
+			agent.parameters.nomeUser,
+			agent.parameters.telUser,
+			agent.parameters.nomeEmpresa,
+			agent.parameters.tamanhoEmpresa,
+			agent.parameters.Segmento,
+			agent.parameters.Problema,
+			agent.parameters.Projeto
+		];
 		let slots = {
+			emailUser: emailUser,
+			nomeUser: nomeUser,
+			telUser: telUser,
 			nomeEmpresa: nomeEmpresa,
 			tamanhoEmpresa: tamanhoEmpresa,
 			Segmento: Segmento,
-			Problema: Problema
+			Problema: Problema,
+			Projeto: Projeto
 		};
 		let user = {
 			CELULAR: '',
@@ -59,31 +71,69 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			STATUS: 'active',
 			USER_AGENT: ''
 		};
+		let projeto = {
+			indice: 1,
+			nome: "",
+			desafio: [],
+			id_mentor: 0,
+			id_user: 1,
+			interesses: "",
+			segmento: "",
+			solucao: "",
+			status: "em aberto"
+		};
 
-		if (!slots.nomeEmpresa){
-			agent.add(`Vamos coletar informações sobre o seu desafio para enviar ao nosso Guru e  nosso Time de Mentores.`);
-			agent.add(`Qual o nome da sua empresa?`);
+		if (!slots.emailUser) {
+			agent.add(`Antes de começar, gostaria de pedir algumas de suas informações.`);
+			agent.add(`Qual é o seu e-mail?`);
+		}
+		else if (slots.emailUser && !slots.nomeUser) {
+			agent.add(`Qual é o seu nome?`);
+		}
+		else if (slots.nomeUser && !slots.telUser) {
+			agent.add(`E por último, qual é o seu celular de contato? (e.x: ddd9xxxxxxxx)`);
+		}
+		else if (slots.telUser && !slots.nomeEmpresa) {
+			agent.add("");
+			dbUsers.where('EMAIL', '==', slots.emailUser).get().then(snapshot => {
+				if (snapshot == 0) {
+					dbConfig.doc('user').get().then(doc => {
+						if(doc.exists) {
+							const fields = doc.data();
+							user.ID_USER = fields.counter + 1;
+						}
+						user.NAME = slots.nomeUser;
+						user.EMAIL = slots.emailUser;
+						user.CELULAR = slots.telUser;
+						dbUsers.add(user);
+						dbConfig.doc('user').update({ counter: user.ID_USER });
+					});
+				}
+				agent.add(`Vamos coletar informações sobre o seu desafio para enviar ao nosso Guru e  nosso Time de Mentores.`);
+				agent.add(`Qual o nome da sua empresa/projeto?`);
+			});
 		}
 		else if (slots.nomeEmpresa && !slots.tamanhoEmpresa){
 			agent.add(`Qual é o tamanho da ${slots.nomeEmpresa}?`);
+			agent.add(new Suggestion('startup'));
 			agent.add(new Suggestion('pequena'));
 			agent.add(new Suggestion('média'));
 			agent.add(new Suggestion('grande'));
-			agent.add(new Suggestion('startup'));
 		}
-		else if (slots.nomeEmpresa && slots.tamanhoEmpresa && !slots.Segmento){
-			return dbSegmento.limit(4).get().then(snapshot => {
+		else if (slots.tamanhoEmpresa && !slots.Segmento){
+			return dbSegmento.limit(6).get().then(snapshot => {
 				agent.add(`Selecione um segmento que esteja relacionado ao desafio. Se prefirir, escreva um novo.`);
 				if (snapshot.size > 0) {
 					snapshot.forEach(doc => {
-                      agent.add(new Suggestion(`${doc.data().sinonimos[0]}`));
+						const fields = doc.data();
+                      agent.add(new Suggestion(`${fields.sinonimos[0]}`));
                     });
 				}
 				agent.add("");
 			});
 		}
-		else if (slots.nomeEmpresa && slots.tamanhoEmpresa && slots.Segmento && !slots.Problema) {
-			return dbSegmento.where('sinonimos','array-contains', slots.Segmento).get().then(snapshot => {
+		else if (slots.Segmento && !slots.Problema) {
+			return dbSegmento.where('sinonimos','array-contains', slots.Segmento.toLowerCase()).get().then(snapshot => {
 				agent.add('Selecione uma área de interesse que tenha relação com o seu desafio.');
 				agent.add('Se for mais de um interesse, escreva-os separando com vírgula.');
 				if(snapshot.size > 0) {
@@ -94,55 +144,97 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					});
 				}
 				else {
-					dbSegmento.doc(slots.Segmento).set({
-						sinonimos: [slots.Segmento],
+					dbSegmento.doc(slots.Segmento.toLowerCase()).set({
+						sinonimos: [slots.Segmento.toLowerCase()],
 						interesses: []
 					});
 				}
 				agent.add("");
 			});
-		} 
-		else {
-			let inter = slots.Problema;
-			if (inter.search(",") >= 0) {
-				inter = slots.Problema.split(',').map(val => { return val.toLowerCase().trim(); });
-			} else {
-				inter = slots.Problema.toLowerCase().trim();
-			}
-
-			const doc_segmentoRef = dbSegmento.doc(slots.Segmento);
-
-			return doc_segmentoRef.get().then(doc => {
-				const campos = doc.data();
-				if (typeof inter == "string") {
-					if(!campos.interesses.includes(inter)){
-						let arrUnion = doc_segmentoRef.update({
-							interesses: admin.firestore.FieldValue.arrayUnion(inter)
+		}
+		else if (slots.Problema && !slots.Projeto) {
+			let interesses = slots.Problema.split(',').map(val => val.toLowerCase().trim());
+			const refSeg = dbSegmento.where('sinonimos','array-contains',slots.Segmento.toLowerCase()).limit(1);
+			refSeg.get().then(snap => {
+				if (snap.size > 0) {
+					snap.forEach(doc => {
+						const fields = doc.data();
+						interesses.forEach(interesse => {
+							if(!fields.interesses.includes(interesse)){
+								dbSegmento.doc(fields.sinonimos[0]).update({ interesses: admin.firestore.FieldValue.arrayUnion(interesse) });
+							}
 						});
-					}
-				}
-				else {
-					inter.forEach(interesse => {
-						if(!campos.interesses.includes(interesse)){
-							let arrUnion = doc_segmentoRef.update({
-								interesses: admin.firestore.FieldValue.arrayUnion(interesse)
-							});
-						}
 					});
 				}
-				agent.add(new Card({
-					title: `GURU`,
-					text: `Interessante, Clique no link abaixo para conversar melhor sobre seu desafio.`,
-					buttonText: 'GURU',
-					buttonUrl: 'http://bit.ly/falar-guru'
-				}));
-          		agent.add(``);
+			}).catch(err => {
+				console.log('--> Error <--');
+				console.log(err);
+				console.log('--> End Error <--');
+				agent.add('');
+			});
+			return dbProjeto.where('segmento', '==', slots.Segmento.toLowerCase()).where('interesses','array-contains',interesses[0]).limit(3).get().then(projetos => {
+				agent.add(`Qual frase melhor descreve seu desafio/problema?`);
+				if(projetos.size > 0) {
+					projetos.forEach(project => {
+						const fields = project.data();
+						agent.add(new Suggestion(`${fields.desafio[0]}`));
+					});
+				}
+				agent.add(new Suggestion('Outra frase'));
+			});
+		} 
+		else {
+			return dbProjeto.where('desafio','array-contains', slots.Projeto.trim()).limit(1).get().then(docs => {
+				if (docs.size > 0) {
+					agent.add(new Card({
+						title: `IDEA`,
+						imageUrl: 'https://images.wallpaperscraft.com/image/surface_gray_dark_light_shadow_18440_1920x1080.jpg',
+						text: `- Diagnóstico geral do seu negócio\n
+						- 3 Dicas do Guru para vencer o seu desafio\n
+						- Acesso às soluções já exploradas\n 
+						- Acesso limitado aos mentores`,
+						buttonText: 'Adquirir - Grátis',
+						buttonUrl: 'http://bit.ly/falar-guru'
+					}));
+					agent.add(new Card({
+						title: `STARTER`,
+						imageUrl: 'https://wallpaperplay.com/walls/full/6/7/c/189670.jpg',
+						text: `- Diagnóstico geral do seu negócio\n
+						- 5 Dicas do Guru para vencer o seu desafio\n
+						- Acesso às soluções já exploradas\n 
+						- 1 solução resolvida por mês\n
+						- 5 horas gratuitas com o nosso Time de Mentores`,
+						buttonText: 'Adquirir - R$49,90',
+						buttonUrl: 'http://bit.ly/falar-guru'
+					}));
+					agent.add(new Card({
+						title: `SMART`,
+						imageUrl: 'https://images.squarespace-cdn.com/content/v1/5516199be4b05ede7c57f94f/1488268363050-CHVBOTA490JX1KRFCVN3/ke17ZwdGBToddI8pDm48kKG6OoQUcDwE6Xrn0CktdYIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc7wdBxA2FfWIL_oInLxCuGYBExGLaY8v4Pn7yFeMELUKe4DQXRx1Bu1AnCO9mIfj2/light-blue-wallpaper-7846-8139-hd-wallpapers-1024x576.jpg',
+						text: `- Diagnóstico geral do seu negócio\n
+						- 5 Dicas do Guru para vencer o seu desafio\n
+						- Acesso às soluções já exploradas\n 
+						- 4 solução resolvida por mês\n
+						- Horas ilimitadas de mentoria com nossos mentores gratuitos`,
+						buttonText: 'Adquirir - R$199,90',
+						buttonUrl: 'http://bit.ly/falar-guru'
+					}));
+				}
+				else {
+					agent.add(new Card({
+						title: `GURU`,
+						imageUrl: 'https://metropolitanafm.com.br/wp-content/uploads/2017/08/whatsapp-logo-hero-690x388.jpg',
+						text: `Clique no link abaixo para conversar melhor sobre seu desafio.`,
+						buttonText: 'GURU',
+						buttonUrl: 'http://bit.ly/falar-guru'
+					}));
+				}
+				agent.add(``);
 			});
 		}
 	}
 
 	function GetMentor(agent) {
-		//let conv = agent.conv();
+		const dbConfig = db.collection('config');
 		const dbSegmento = db.collection('segmentos');
 		const dbUsers = db.collection('Users');
 		const dbMentor = db.collection('mentorValidation');
@@ -201,11 +293,12 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			CONDITION: ''
 		};
 		let projeto = {
+			indice: 1,
 			nome: "",
 			desafio: [],
 			id_mentor: 1,
 			id_user: 1,
-			interesses: "",
+			interesses: [],
 			segmento: "",
 			solucao: "",
 			status: "resolvido"
@@ -222,18 +315,18 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(`E por ultímo, qual é o seu celular de contato? (e.x: ddd9xxxxxxxx)`);
 		}
 		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && !slots.segmentoMentor){
-			dbUsers.get().then(snapshot => {
-				if(snapshot.size > 0) {
-					user.ID_USER = snapshot.size + 1;
+			dbConfig.doc('user').get().then(doc => {
+				if(doc.exists) {
+					const fields = doc.data();
+					user.ID_USER = fields.counter + 1;
 				}
 				user.NAME = slots.nomeMentor;
 				user.EMAIL = slots.emailMentor;
 				user.CELULAR = slots.telMentor;
 				dbUsers.add(user);
-				//console.log("---	ADD USER IN DATABASE	---");
-				//console.log(user);
+				dbConfig.doc('user').update({  counter: user.ID_USER });
 			});
-			return dbSegmento.limit(4).get().then(snapshot => {
+			return dbSegmento.limit(6).get().then(snapshot => {
 				agent.add(`Escreva o segmento que está relacionado a sua área de atuação. Se preferir, adicione um novo.`);
 				if (snapshot.size > 0) {
 					snapshot.forEach(doc => {
@@ -306,7 +399,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		} 
 		else {
 			dbUsers.where('EMAIL','==',slots.emailMentor).get().then(snapshot => {
-				//console.log(`EMAIL == ${slots.emailMentor} ->`);
 				let id_get;
 				if (snapshot.size > 0) {
 					snapshot.forEach(doc => {
@@ -320,24 +412,23 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 						console.log(`ID DO USER: ${user_.ID_USER} E ID DO MENTOR: ${mentor.ID_MENTOR}`);*/
 					});
 				}
-				/*else {
-					console.log("Não conseguiu encontrar snapshots");
-				}*/
 				mentor.SEGMENTO = slots.segmentoMentor.trim().toLowerCase();
 				mentor.KNOWLEDGE_AREA = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
 				mentor.CONDITION = slots.condicoesMentor;
 				dbMentor.add(mentor);
-				projeto.desafio = [slots.tituloDesafio.trim(), slots.descDesafio.trim()];
-				projeto.interesses = slots.interesseMentor.trim();
-				projeto.segmento = slots.segmentoMentor.trim().toLowerCase();
-				projeto.solucao = slots.solucaoDesafio.trim();
-				projeto.nome = slots.nomeProjeto.trim();
-				dbProjeto.add(projeto);
-
-				/*console.log("Mentor adicionado: --->");
-				console.log(mentor);
-				console.log("Projeto adicionado: --->");
-				console.log(projeto);*/
+				dbConfig.doc('projeto').get().then(doc => {
+					if(doc.exists) {
+						const fields = doc.data();
+						projeto.indice = fields.counter + 1;
+						projeto.desafio = [slots.tituloDesafio.trim(), slots.descDesafio.trim()];
+						projeto.interesses = slots.interesseMentor.split(',').map(interesse => interesse.trim().toLowerCase());
+						projeto.segmento = slots.segmentoMentor.trim().toLowerCase();
+						projeto.solucao = slots.solucaoDesafio.trim();
+						projeto.nome = slots.nomeProjeto.trim();
+						dbProjeto.add(projeto);
+						dbConfig.doc('projeto').update({ counter: projeto.indice });
+					}
+				});
 			});
 			agent.add(`Obrigado por fazer parte do nosso team!!!`);
 		}
