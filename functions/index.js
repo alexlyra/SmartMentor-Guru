@@ -120,8 +120,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			});
 		}
 		else if (slots.telUser && !slots.nomeEmpresa) {
-			agent.add("");
-			dbUsers.where('EMAIL', '==', slots.emailUser).get().then(snapshot => {
+			return dbUsers.where('EMAIL', '==', slots.emailUser).limit(1).get().then(snapshot => {
+				agent.add(`Vamos coletar informações sobre o seu desafio para enviar ao nosso Guru e  nosso Time de Mentores.`);
+				agent.add(`Qual o nome da sua empresa/projeto?`);
 				if (snapshot == 0) {
 					dbConfig.doc('user').get().then(doc => {
 						if(doc.exists) {
@@ -136,19 +137,19 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					});
 				}
 				else {
+					let id_usuario = 0;
 					snapshot.forEach(doc => {
 						const camp = doc.data();
-						agent.add(`Vamos coletar informações sobre o seu desafio para enviar ao nosso Guru e  nosso Time de Mentores.`);
-						agent.add(`Qual o nome da sua empresa/projeto?`);
-						return dbProjeto.where('id_user','==',camp.ID_USER).get().then(snap => {
-							if(snap.size > 0) {
-								snap.forEach(proj => {
-									const campos = proj.data();
-									console.log(campos);
-									agent.add(campos.nome);
-								});
-							}
-						});
+						id_usuario = camp.ID_USER;
+					});
+					dbProjeto.where('id_user','==',id_usuario).limit(3).get().then(snap => {
+						if(snap.size > 0) {
+							snap.forEach(proj => {
+								const campos = proj.data();
+								console.log(campos.nome);
+								agent.add(new Suggestion(`${campos.nome}`));
+							});
+						}
 					});
 				}
 				agent.add('');
@@ -398,8 +399,11 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		else if (slots.emailMentor && !slots.nomeMentor) {
 			return dbUsers.where('EMAIL','==',slots.emailMentor).limit(1).get().then(docs => {
 				if(docs.size > 0) {
-					agent.add(`Percebe que o e-mail ${slots.emailMentor} já está cadastro. Clique em continuar`);
-					agent.add(new Suggestion('Continuar'));
+					agent.add(`Percebe que o e-mail ${slots.emailMentor} já está cadastro.`);
+					docs.forEach(doc => {
+						const fields = doc.data();
+						agent.add(new Suggestion(`Continuar como ${fields.NAME}`));
+					});
 				}
 				else {
 					agent.add(`Qual é o seu nome?`);
@@ -410,8 +414,11 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		else if (slots.nomeMentor && slots.emailMentor && !slots.telMentor) {
 			return dbUsers.where('EMAIL','==',slots.emailMentor).limit(1).get().then(docs => {
 				if(docs.size > 0) {
-					agent.add(`Percebe que o e-mail ${slots.emailMentor} já está cadastro. Clique em continuar`);
-					agent.add(new Suggestion('Continuar'));
+					agent.add(`Percebe que o e-mail ${slots.emailMentor} já está cadastro.`);
+					docs.forEach(doc => {
+						const fields = doc.data();
+						agent.add(new Suggestion(`Continuar com ${fields.CELULAR}`));
+					});
 				}
 				else {
 					agent.add(`E por ultímo, qual é o seu celular de contato? (e.x: ddd9xxxxxxxx)`);
