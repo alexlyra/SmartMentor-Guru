@@ -90,10 +90,34 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(`Qual é o seu e-mail?`);
 		}
 		else if (slots.emailUser && !slots.nomeUser) {
-			agent.add(`Qual é o seu nome?`);
+			return dbUsers.where('EMAIL','==',slots.emailUser).limit(1).get().then(docs => {
+				if(docs.size > 0) {
+					agent.add(`Percebe que o e-mail ${slots.emailUser} já está cadastro.`);
+					docs.forEach(doc => {
+						const fields = doc.data();
+						agent.add(new Suggestion(`Continuar como ${fields.NAME}`));
+					});
+				}
+				else {
+					agent.add(`Qual é o seu nome?`);
+				}
+				agent.add('');
+			});
 		}
 		else if (slots.nomeUser && !slots.telUser) {
-			agent.add(`E por último, qual é o seu celular de contato? (e.x: ddd9xxxxxxxx)`);
+			return dbUsers.where('EMAIL','==',slots.emailUser).limit(1).get().then(docs => {
+				if(docs.size > 0) {
+					agent.add(`Percebe que o e-mail ${slots.emailUser} já está cadastro.`);
+					docs.forEach(doc => {
+						const fields = doc.data();
+						agent.add(new Suggestion(`Continuar com ${fields.CELULAR}`));
+					});
+				}
+				else {
+					agent.add(`E por último, qual é o seu celular de contato? (e.x: ddd9xxxxxxxx)`);
+				}
+				agent.add('');
+			});
 		}
 		else if (slots.telUser && !slots.nomeEmpresa) {
 			agent.add("");
@@ -111,8 +135,23 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 						dbConfig.doc('user').update({ counter: user.ID_USER });
 					});
 				}
-				agent.add(`Vamos coletar informações sobre o seu desafio para enviar ao nosso Guru e  nosso Time de Mentores.`);
-				agent.add(`Qual o nome da sua empresa/projeto?`);
+				else {
+					snapshot.forEach(doc => {
+						const camp = doc.data();
+						agent.add(`Vamos coletar informações sobre o seu desafio para enviar ao nosso Guru e  nosso Time de Mentores.`);
+						agent.add(`Qual o nome da sua empresa/projeto?`);
+						return dbProjeto.where('id_user','==',camp.ID_USER).get().then(snap => {
+							if(snap.size > 0) {
+								snap.forEach(proj => {
+									const campos = proj.data();
+									console.log(campos);
+									agent.add(campos.nome);
+								});
+							}
+						});
+					});
+				}
+				agent.add('');
 			});
 		} 
 		else if (slots.nomeEmpresa && !slots.tamanhoEmpresa){
