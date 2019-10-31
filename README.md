@@ -27,4 +27,5 @@
         </li>
     </ul>
     <img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/fulfillment.jpg">
+    Sempre que adicionar novo código ao Fulfillment, clique no botão <b>"Deploy"</b>, levará alguns segundos. Após o dialogflow carregar o código, ele irá mostrar uma mensagem dizendo que foi realizada o deploy.
 </p>
