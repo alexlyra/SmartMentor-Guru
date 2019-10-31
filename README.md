@@ -58,6 +58,20 @@
 </p>
 
 <h2 align="center">Firebase</h2>
-<p align="center">
-    O Firebase é uma plataforma de desenvolvimento de aplicativos para dispositivos móveis e web.
+<p>
+    O Firebase é uma plataforma de desenvolvimento de aplicativos para dispositivos móveis e web. Nesta plataforma você tem acesso a várias ferramentas do seu projeto do Google Cloud, neste projeto (GURU) está sendo usado o banco de dados não relacional Firestore e o log das Funções chamadas pelo Fulfillment.
 </p>
+<h3>Como acessar:</h3>
+<h4><strong>1 - </strong> Receba acesso e permissões de administrador</h4>
+<h4><strong>2 - </strong> Acesse <a href="https://console.firebase.google.com/?hl=pt-BR" target="_blank">Firebase</a></h4>
+<h4>
+    <strong>3 - </strong>Você estará em uma página semelhante Figura 1. Caso tenha recebido todas as permissões necessárias, você encontrará um projeto chamado Guru-teste na lista de projetos
+</h4>
+<img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/image/firebase/step_1.jpg">
+<p align="center">Figura 1</p>
+
+
+<h4><strong>4 - </strong> </h4>
+<h4><strong>5 - </strong> </h4>
+<h4><strong>6 - </strong> </h4>
+<h4><strong>7 - </strong> </h4>
