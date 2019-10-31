@@ -83,4 +83,7 @@
             <strong>Functions</strong> Esta aba você terá visão do log(resgistro) do que está acontecendo na comunicação do Dialogflow com o Firebase.
         </li>
     </ul>
-</p>
+</p><br /><br />
+
+<h3>Como fazer uma pesquisa no Firebase's Firestore:</h3>
+<img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/image/firebase/pesquisa.jpg">
