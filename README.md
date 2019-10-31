@@ -6,7 +6,7 @@
 <h3>Inicio Rápido (Edição do Fulfillment)</h3>
 <ul>
     <li>Receba acesso e permissões de administrador</li>
-    <li>Acesse <a href="https://dialogflow.cloud.google.com/">Dialogflow</a></li>
+    <li>Acesse <a href="https://dialogflow.cloud.google.com/" target="_blank">Dialogflow</a></li>
     <li>Vá para Fulfillment (canto esquerdo)</li>
 </ul>
 <br />
