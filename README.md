@@ -9,3 +9,9 @@
     <li>Acesse <a href="https://dialogflow.cloud.google.com/">Dialogflow</a></li>
     <li>Vá para Fulfillment (canto esquerdo)</li>
 </ul>
+<br />
+<h3>Fulfillment</h3>
+<p>
+    Fulfillment é o código implantado como um webhook que permite que o agente do Dialogflow chame a lógica de negócios de intent a intent. Durante uma conversa, o fulfillment permite usar as informações extraídas pelo processamento de linguagem natural do Dialogflow para gerar respostas dinâmicas ou acionar ações no seu back-end.
+    No Guru, ele é responsável pela tomada de decisão do que fazer com as informações inseridas pelo usuário, além de customizar as perguntas das intents com Suggestions e Cards.
+</p>
