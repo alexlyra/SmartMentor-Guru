@@ -41,9 +41,9 @@
             <a href="https://github.com/dialogflow/dialogflow-fulfillment-nodejs">Dialogflow Fulfillment Library</a><br />
             Repositório da Biblioteca do DialogFlow Fulfillment no GitHub onde possui os arquivos raiz de um exemplo de chatbot pronto. Além de possuir alguns links para outros exemplos que utilizam outras bibliotecas e lógicas para o fulfillment, tais como:
             <ul>
-                <li>Preenchimento dos paramêtros de uma intent via Fulfillment</li>
-                <li>Criando respostas dinâmicas com Suggestions, Cards, etc</li>
-                <li>Criando respostas dinâmicas com Requests do Firebase's Firestore DB</li>
+                <li><b>Preenchimento dos paramêtros de uma intent via Fulfillment</b></li>
+                <li><b>Criando respostas dinâmicas com Suggestions, Cards, etc</b></li>
+                <li><b>Criando respostas dinâmicas com Requests do Firebase's Firestore DB</b></li>
             </ul>
         </li>
     </ul>
