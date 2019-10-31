@@ -48,7 +48,7 @@
         </li>
         <li>
             <a href="https://dialogflow.com/docs/reference/fulfillment-library/webhook-client">WebhookClient</a><br />
-            Documentação da classe responsável pela comunicação do Dialogflow's Webhook na API V2 que possui suporte para respostas ricas (são respostas dinâmicas usando bibliotecas como: Suggestion, Card, Image, Text).
+            Documentação da classe responsável pela comunicação do Dialogflow's Webhook na API V2 que possui suporte para <b>Rich Responses</b> (são respostas dinâmicas usando bibliotecas como: Suggestion, Card, Image, Text).
         </li>
         <li>
             <a href="http://www.java2s.com/Tutorials/Javascript/Node.js_Tutorial/index.htm">Node.js Tutorial</a><br />
