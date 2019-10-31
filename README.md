@@ -1,1 +1,1 @@
-<h1>TESTE H1</h1>
+<center><h1>SmartMentor Guru</h1></center>
