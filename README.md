@@ -1,4 +1,4 @@
-<img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/logo.jpg">
+<img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/image/logo.jpg">
 <h1 align="center">SmartMentor Guru</h1>
 <p>
     SmartMentor Guru é um assistente inteligente construido em cima da ferramenta da Google, o Dialogflow, tendo uma conexão com o banco de dados não relacional Firestore, onde é armazenado os usuários, projetos, segmentos, mentores, etc...
@@ -26,6 +26,6 @@
             <b>firebase-admin: </b>biblioteca que permite a conexão com o banco de dados Firestore, permitindo realizar queries que retornam informações do banco e/ou gravam novas informações.
         </li>
     </ul>
-    <img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/fulfillment.jpg">
+    <img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/image/fulfillment.jpg">
     Sempre que adicionar novo código ao Fulfillment, clique no botão <b>"Deploy"</b>, levará alguns segundos. Após o dialogflow carregar o código, ele irá mostrar uma mensagem dizendo que foi realizada o deploy.
 </p>
