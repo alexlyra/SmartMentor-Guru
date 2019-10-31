@@ -46,5 +46,13 @@
                 <li><b>Criando respostas dinâmicas com Requests do Firebase's Firestore DB</b></li>
             </ul>
         </li>
+        <li>
+            <a href="https://dialogflow.com/docs/reference/fulfillment-library/webhook-client">WebhookClient</a><br />
+            Documentação da classe responsável pela comunicação do Dialogflow's Webhook na API V2 que possui suporte para respostas ricas (são respostas dinâmicas usando bibliotecas como: Suggestion, Card, Image, Text).
+        </li>
+        <li>
+            <a href="http://www.java2s.com/Tutorials/Javascript/Node.js_Tutorial/index.htm">Node.js Tutorial</a><br />
+            Site referência de tutorial com explicações e tutoriais de comandos no Node.js.
+        </li>
     </ul>
 </p>
