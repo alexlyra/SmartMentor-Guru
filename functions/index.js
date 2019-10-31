@@ -1,22 +1,44 @@
 'use strict';
 //------------------------------
-	const {dialogflow} = require('actions-on-google');
+	
+	//const {dialogflow} = require('actions-on-google');
+	// Bibliotecas necessárias para a comunicação do Dialogflow com o Firebase e o Firebase's Firestore
 	const functions = require('firebase-functions');
 	const admin = require('firebase-admin');
 
+	// Biblioteca necessária para o funcionamento do fulfillment
 	const { WebhookClient } = require('dialogflow-fulfillment');
+	// Classes usadas para realizar Rich Responses (respostas dinâmicas)
 	const { Card, Suggestion } = require('dialogflow-fulfillment');
-	const { LinkOutSuggestion, OpenUrlAction } = require('actions-on-google'); 
+	/*
+		Template das rich responses:
+		Suggestion: new Suggestion(`Mensagem`)
+		Card: new Card({
+			title: `titulo`,
+			imageUrl: 'link da imagem',
+			text: `Mensagem, caso queira fazer a mensagem ir para linha de baixo, utilizeo \n `,
+			buttonText: 'mensagem do botão',
+			buttonUrl: 'link do botão'
+		})
+		-- para mais informações sobre os Rich Responses, acesse o link disponibilizado no GitHub
+	*/
 
 	process.env.DEBUG = 'dialogflow:debug';
-	//admin.initializeApp(functions.config().firebase);
+	//Inicializa a comunicação com o database Firestore com credenciais padrões
 	admin.initializeApp({ credential: admin.credential.applicationDefault() });
+	//Faz a comunicação com o database
 	const db = admin.firestore();
 //------------------------------
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
+	//Inicializa o agent do chatbot para fazer requests e receber as respectivas responses
 	const agent = new WebhookClient({request: request, response: response});
-	//agent.requestSource = agent.ACTIONS_ON_GOOGLE;
+
+	/*
+		agent.add() - comando para escrever uma mensagem no chat
+		function nameFunction(agent){} - estrutura padrão para funções que serão handlers de intents do bot
+	*/
+
 	function BoasVindas(agent) {
 		agent.add(`Olá! Sou o Guru e meu objetivo é ajudar a encontrar uma solução para o problema do seu negócio. Vamos começar ?`);
 		agent.add(new Suggestion(`Sim`));
@@ -33,10 +55,19 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 	}
 
 	function GetEmpresa(agent) {
+		/*
+			Constantes que recebem como parametro a comunicação com uma coleção especifica,
+			 isso facilita a chamada da coleção em vários lugares do código dentro da function,
+			 evitando escrever várias vezes db.collection('coleção especifica')
+		*/
 		const dbConfig = db.collection('config');
 		const dbSegmento = db.collection('segmentos');
 		const dbUsers = db.collection('Users');
 		const dbProjeto = db.collection('projeto');
+		/*
+			Constantes que recebem como parametro os valores do parametro da intent
+			para pegar o valor do parametro da intent, você deve usar o código agent.parameters.#nome exato do parametro#
+		*/
 		const [emailUser, nomeUser, telUser, nomeEmpresa, tamanhoEmpresa, Segmento, Problema, Projeto, descDesafio] = [
 			agent.parameters.emailUser,
 			agent.parameters.nomeUser,
@@ -59,6 +90,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			Projeto: Projeto,
 			descDesafio: descDesafio
 		};
+		//Template dos documentos para preenchimento ao longo da conversa da intent, onde recebe os valores passados pelo usuário
 		let user = {
 			CELULAR: '',
 			CIDADE: '',
@@ -84,7 +116,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			solucao: "",
 			status: "em aberto"
 		};
-
+		//END
+		/*
+			o simbolo - ! - representa a condição da váriavel está empty, null ou ""
+		*/
 		if (!slots.emailUser) {
 			agent.add(`Antes de começar, gostaria de pedir algumas de suas informações.`);
 			agent.add(`Qual é o seu e-mail?`);
@@ -93,7 +128,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			return dbUsers.where('EMAIL','==',slots.emailUser).limit(1).get().then(docs => {
 				if(docs.size > 0) {
 					agent.add(`Percebe que o e-mail ${slots.emailUser} já está cadastro.`);
+					//Rotina para verificar cada objeto documento retornado da pesquisa
 					docs.forEach(doc => {
+						//Constante que conterá os dados do objeto convertidos para leitura e escrita no Dialogflow
 						const fields = doc.data();
 						agent.add(new Suggestion(`Continuar como ${fields.NAME}`));
 					});
