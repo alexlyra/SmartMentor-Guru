@@ -26,4 +26,5 @@
             <b>firebase-admin: </b>biblioteca que permite a conexão com o banco de dados Firestore, permitindo realizar queries que retornam informações do banco e/ou gravam novas informações.
         </li>
     </ul>
+    <img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/fulfillment.jpg">
 </p>
