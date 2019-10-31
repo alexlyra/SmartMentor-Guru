@@ -87,3 +87,6 @@
 
 <h3>Como fazer uma pesquisa no Firebase's Firestore:</h3>
 <img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/image/firebase/pesquisa.jpg">
+<br /><br /><br /><br />
+<h3>O que ver na aba Functions?!!!</h3>
+<img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/image/firebase/functions.jpg">
