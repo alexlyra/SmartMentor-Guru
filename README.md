@@ -58,3 +58,6 @@
 </p>
 
 <h2 align="center">Firebase</h2>
+<p align="center">
+    O Firebase é uma plataforma de desenvolvimento de aplicativos para dispositivos móveis e web.
+</p>
