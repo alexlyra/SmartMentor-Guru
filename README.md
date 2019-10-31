@@ -63,15 +63,24 @@
 </p>
 <h3>Como acessar:</h3>
 <h4><strong>1 - </strong> Receba acesso e permissões de administrador</h4>
+
 <h4><strong>2 - </strong> Acesse <a href="https://console.firebase.google.com/?hl=pt-BR" target="_blank">Firebase</a></h4>
+
 <h4>
-    <strong>3 - </strong>Você estará em uma página semelhante Figura 1. Caso tenha recebido todas as permissões necessárias, você encontrará um projeto chamado Guru-teste na lista de projetos
+    <strong>3 - </strong>Você estará em uma página semelhante a imagem abaixo. Caso tenha recebido todas as permissões necessárias, você encontrará um projeto chamado Guru-teste na lista de projetos. Clique nele e será enviado para a home do projeto.
 </h4>
 <img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/image/firebase/step_1.jpg">
-<p align="center">Figura 1</p>
+<p><b>OBS:</b> Caso não apareça este projeto na lista de projetos, solicite a liberação das permissões</p>
 
-
-<h4><strong>4 - </strong> </h4>
-<h4><strong>5 - </strong> </h4>
-<h4><strong>6 - </strong> </h4>
-<h4><strong>7 - </strong> </h4>
+<h4><strong>4 - </strong> Após clicar em um projeto, você estará na home deste. Aqui você terá acesso a algumas ferramentas. O Guru utiliza as ferramentas: <b>Database e Functions</b></h4>
+<img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/image/firebase/step_4.jpg">
+<p>
+    <ul>
+        <li>
+            <strong>Database:</strong> Esta aba é onde você terá visão das coleções, documentos, campos, informações do banco de dados.
+        </li>
+        <li>
+            <strong>Functions</strong> Esta aba você terá visão do log(resgistro) do que está acontecendo na comunicação do Dialogflow com o Firebase.
+        </li>
+    </ul>
+</p>
