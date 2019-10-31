@@ -29,3 +29,22 @@
     <img align="center" src="https://github.com/alexlyra/SmartMentor-Guru/blob/master/image/fulfillment.jpg">
     Sempre que adicionar novo código ao Fulfillment, clique no botão <b>"Deploy"</b>, levará alguns segundos. Após o dialogflow carregar o código, ele irá mostrar uma mensagem dizendo que foi realizada o deploy.
 </p>
+<h3>Referências e Documentações</h3>
+<p>
+    Para a elaboração do código do fulfillment, foi utilizado alguns links de documentações e suporte como referências.
+    <ul>
+        <li>
+            <a href="https://cloud.google.com/firestore/docs/how-to">Cloud Firestore basics for managing data</a><br />
+            Documentação do Google Cloud para o gerenciamento de dados do Firestore. Nesta documentação possui exemplos de request de informações do banco de dados e exemplos de como adicionar, atualizar e deletar. Vale lembrar que os códigos exemplos devem ser olhados na linguagem Node.js 
+        </li>
+        <li>
+            <a href="https://github.com/dialogflow/dialogflow-fulfillment-nodejs">Dialogflow Fulfillment Library</a><br />
+            Repositório da Biblioteca do DialogFlow Fulfillment no GitHub onde possui os arquivos raiz de um exemplo de chatbot pronto. Além de possuir alguns links para outros exemplos que utilizam outras bibliotecas e lógicas para o fulfillment, tais como:
+            <ul>
+                <li>Preenchimento dos paramêtros de uma intent via Fulfillment</li>
+                <li>Criando respostas dinâmicas com Suggestions, Cards, etc</li>
+                <li>Criando respostas dinâmicas com Requests do Firebase's Firestore DB</li>
+            </ul>
+        </li>
+    </ul>
+</p>
