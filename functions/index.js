@@ -147,7 +147,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					agent.add(`Percebe que o e-mail ${slots.emailUser} já está cadastro.`);
 					docs.forEach(doc => {
 						const fields = doc.data();
-						agent.add(new Suggestion(`Continuar com ${fields.CELULAR}`));
+						agent.add(new Suggestion(`id:${fields.ID_USER} Continuar com ${fields.CELULAR}`));
 					});
 				}
 				else {
@@ -157,9 +157,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			});
 		}
 		else if (slots.telUser && !slots.nomeEmpresa) {
-			return dbUsers.where('EMAIL', '==', slots.emailUser).limit(1).get().then(snapshot => {
-				agent.add(`Vamos coletar informações sobre o seu desafio para enviar ao nosso Guru e  nosso Time de Mentores.`);
-				agent.add(`Qual o nome da sua empresa/projeto?`);
+			dbUsers.where('EMAIL', '==', slots.emailUser).limit(1).get().then(snapshot => {
 				if (snapshot == 0) {
 					dbConfig.doc('user').get().then(doc => {
 						if(doc.exists) {
@@ -173,23 +171,20 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 						dbConfig.doc('user').update({ counter: user.ID_USER });
 					});
 				}
-				else {
-					let id_usuario = 0;
-					snapshot.forEach(doc => {
-						const camp = doc.data();
-						id_usuario = camp.ID_USER;
-					});
-					dbProjeto.where('id_user','==',id_usuario).limit(3).get().then(snap => {
-						if(snap.size > 0) {
-							snap.forEach(proj => {
-								const campos = proj.data();
-								console.log(campos.nome);
-								agent.add(new Suggestion(`${campos.nome}`));
-							});
-						}
+			});
+			let id_seek = slots.telUser.split(' ').map(val => val.toLowerCase().trim());
+			let id_found = id_seek[0].replace('id:','');
+			id_found = parseInt(id_found);
+			return dbProjeto.where('id_user','==',id_found).limit(3).get().then(snap => {
+				agent.add(`Vamos coletar informações sobre o seu desafio para enviar ao nosso Guru e  nosso Time de Mentores.`);
+				agent.add(`Qual o nome da sua empresa/projeto?`);
+				if(snap.size > 0) {
+					snap.forEach(proj => {
+						const campos = proj.data();
+						console.log(campos.nome);
+						agent.add(new Suggestion(`${campos.nome}`));
 					});
 				}
-				agent.add('');
 			});
 		} 
 		else if (slots.nomeEmpresa && !slots.tamanhoEmpresa){
@@ -558,7 +553,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(`Qual solução você utilizou para este desafio?`);
 		}
 		else if (slots.solucaoDesafio && !slots.nomeProjeto) {
-			agent.add(`Agora, de um nome a este projeto.`);
+			agent.add(`Agora, de um nome a este projeto. Caso seja de um projeto já criado anteriormente, escreva-o exatamente igual da outra vez`);
 		}
 		else if (slots.nomeProjeto && !slots.condicoesMentor) {
 			agent.add(`Escolha as condiçõs da sua mentoria:`);
