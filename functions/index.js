@@ -553,7 +553,16 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(`Qual solução você utilizou para este desafio?`);
 		}
 		else if (slots.solucaoDesafio && !slots.nomeProjeto) {
-			agent.add(`Agora, de um nome a este projeto. Caso seja de um projeto já criado anteriormente, escreva-o exatamente igual da outra vez`);
+            return dbProjeto.where('id_user', '==', user.ID_USER).limit(5).get().then(snapshot => {
+                agent.add(`Agora, de um nome a este projeto. Caso seja de um projeto já criado anteriormente, escreva-o exatamente igual da outra vez`);
+                if(snapshot.size > 0) {
+					snapshot.forEach(proj => {
+						const campos = proj.data();
+						console.log(campos.nome);
+						agent.add(new Suggestion(`${campos.nome}`));
+					});
+				}
+            });
 		}
 		else if (slots.nomeProjeto && !slots.condicoesMentor) {
 			agent.add(`Escolha as condiçõs da sua mentoria:`);
