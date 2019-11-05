@@ -127,11 +127,11 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		else if (slots.emailUser && !slots.nomeUser) {
 			return dbUsers.where('EMAIL','==',slots.emailUser).limit(1).get().then(docs => {
 				if(docs.size > 0) {
-					agent.add(`Percebe que o e-mail ${slots.emailUser} já está cadastro.`);
 					//Rotina para verificar cada objeto documento retornado da pesquisa
 					docs.forEach(doc => {
 						//Constante que conterá os dados do objeto convertidos para leitura e escrita no Dialogflow
 						const fields = doc.data();
+						agent.add(`Percebi que você já está cadastrado como ${fields.NAME}`);
 						agent.add(new Suggestion(`Continuar como ${fields.NAME}`));
 					});
 				}
@@ -144,9 +144,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		else if (slots.nomeUser && !slots.telUser) {
 			return dbUsers.where('EMAIL','==',slots.emailUser).limit(1).get().then(docs => {
 				if(docs.size > 0) {
-					agent.add(`Percebe que o e-mail ${slots.emailUser} já está cadastro.`);
 					docs.forEach(doc => {
 						const fields = doc.data();
+						agent.add(`Percebi que você já está cadastrado com o número: ${fields.CELULAR}.`);
 						agent.add(new Suggestion(`id:${fields.ID_USER} Continuar com ${fields.CELULAR}`));
 					});
 				}
@@ -423,6 +423,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			solucao: "",
 			status: "resolvido"
 		};
+
+		dbUsers.where('EMAIL', '==', slots.emailMentor).limit(1).get().then(docs => {
+			if(docs.size > 0) {
+				docs.forEach(doc => {
+					const fields = doc.data();
+					user.ID_USER = fields.ID_USER;
+				});
+			}	
+		});
 		
 		if (!slots.emailMentor) {
 			agent.add(`Antes de começar, gostaria de pedir algumas de suas informações.`);
@@ -431,9 +440,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		else if (slots.emailMentor && !slots.nomeMentor) {
 			return dbUsers.where('EMAIL','==',slots.emailMentor).limit(1).get().then(docs => {
 				if(docs.size > 0) {
-					agent.add(`Percebe que o e-mail ${slots.emailMentor} já está cadastro.`);
+					
 					docs.forEach(doc => {
 						const fields = doc.data();
+						agent.add(`Percebi que você já está cadastrado como ${fields.NAME}`);
 						agent.add(new Suggestion(`Continuar como ${fields.NAME}`));
 					});
 				}
@@ -446,9 +456,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		else if (slots.nomeMentor && slots.emailMentor && !slots.telMentor) {
 			return dbUsers.where('EMAIL','==',slots.emailMentor).limit(1).get().then(docs => {
 				if(docs.size > 0) {
-					agent.add(`Percebe que o e-mail ${slots.emailMentor} já está cadastro.`);
+					
 					docs.forEach(doc => {
 						const fields = doc.data();
+						agent.add(`Percebi que você já está cadastrado com o número: ${fields.CELULAR}`);
 						agent.add(new Suggestion(`Continuar com ${fields.CELULAR}`));
 					});
 				}
