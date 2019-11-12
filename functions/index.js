@@ -208,9 +208,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		}
 		else if (slots.Segmento && !slots.Problema) {
 			return dbSegmento.where('sinonimos','array-contains', slots.Segmento.toLowerCase()).get().then(snapshot => {
-				agent.add('Selecione uma área de interesse que tenha relação com o seu desafio.');
-				agent.add('Se for mais de um interesse, escreva-os separando com vírgula.');
 				if(snapshot.size > 0) {
+					agent.add('Selecione uma área de interesse que tenha relação com o seu desafio.');
+					agent.add('Se for mais de um interesse, escreva-os separando com vírgula.');
 					snapshot.forEach(doc => {
 						doc.data().interesses.forEach(interesse => {
 							agent.add(new Suggestion(`${interesse}`));
@@ -218,6 +218,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					});
 				}
 				else {
+					agent.add('Segmento Novo!!!... Escreva a área de interesse que tenha relação com sua área de atuação');
+					agent.add('Caso seja mais de um interesse, escreva-os separando com vírgula.');
 					dbSegmento.doc(slots.Segmento.toLowerCase()).set({
 						sinonimos: [slots.Segmento.toLowerCase()],
 						interesses: []
@@ -513,9 +515,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && slots.segmentoMentor && !slots.interesseMentor){
 			let segmento_input = slots.segmentoMentor.trim().toLowerCase();
 			return dbSegmento.where('sinonimos','array-contains', segmento_input).get().then(snapshot => {
-				agent.add('Selecione a área de interesse que tenha relação com sua área de atuação.');
-				agent.add('Caso seja mais de um interesse, escreva-os separando com vírgula.');
 				if(snapshot.size > 0) {
+					agent.add('Selecione a área de interesse que tenha relação com sua área de atuação.');
+					agent.add('Caso seja mais de um interesse, escreva-os separando com vírgula.');
 					snapshot.forEach(doc => {
 						doc.data().interesses.forEach(interesse => {
 							agent.add(new Suggestion(`${interesse}`));
@@ -523,6 +525,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 					});
 				}
 				else {
+					agent.add('Segmento Novo!!!... Escreva a área de interesse que tenha relação com sua área de atuação');
+					agent.add('Caso seja mais de um interesse, escreva-os separando com vírgula.');
 					dbSegmento.doc(segmento_input).set({
 						sinonimos: [segmento_input],
 						interesses: []
