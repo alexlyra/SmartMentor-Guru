@@ -125,7 +125,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(`Qual é o seu e-mail?`);
 		}
 		else if (slots.emailUser && !slots.nomeUser) {
-			return dbUsers.where('EMAIL','==',slots.emailUser).limit(1).get().then(docs => {
+			return dbUsers.where('EMAIL','==',slots.emailUser.toLowerCase()).limit(1).get().then(docs => {
 				if(docs.size > 0) {
 					//Rotina para verificar cada objeto documento retornado da pesquisa
 					docs.forEach(doc => {
@@ -142,7 +142,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			});
 		}
 		else if (slots.nomeUser && !slots.telUser) {
-			return dbUsers.where('EMAIL','==',slots.emailUser).limit(1).get().then(docs => {
+			return dbUsers.where('EMAIL','==',slots.emailUser.toLowerCase()).limit(1).get().then(docs => {
 				if(docs.size > 0) {
 					docs.forEach(doc => {
 						const fields = doc.data();
@@ -157,7 +157,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			});
 		}
 		else if (slots.telUser && !slots.nomeEmpresa) {
-			dbUsers.where('EMAIL', '==', slots.emailUser).limit(1).get().then(snapshot => {
+			dbUsers.where('EMAIL', '==', slots.emailUser.toLowerCase()).limit(1).get().then(snapshot => {
 				if (snapshot == 0) {
 					dbConfig.doc('user').get().then(doc => {
 						if(doc.exists) {
@@ -165,7 +165,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 							user.ID_USER = fields.counter + 1;
 						}
 						user.NAME = slots.nomeUser;
-						user.EMAIL = slots.emailUser;
+						user.EMAIL = slots.emailUser.toLowerCase();
 						user.CELULAR = slots.telUser;
 						dbUsers.add(user);
 						dbConfig.doc('user').update({ counter: user.ID_USER });
@@ -424,7 +424,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			status: "resolvido"
 		};
 
-		dbUsers.where('EMAIL', '==', slots.emailMentor).limit(1).get().then(docs => {
+		dbUsers.where('EMAIL', '==', slots.emailMentor.toLowerCase()).limit(1).get().then(docs => {
 			if(docs.size > 0) {
 				docs.forEach(doc => {
 					const fields = doc.data();
@@ -438,7 +438,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add(`Qual é o seu e-mail de contato?`);
 		}
 		else if (slots.emailMentor && !slots.nomeMentor) {
-			return dbUsers.where('EMAIL','==',slots.emailMentor).limit(1).get().then(docs => {
+			return dbUsers.where('EMAIL','==',slots.emailMentor.toLowerCase()).limit(1).get().then(docs => {
 				if(docs.size > 0) {
 					
 					docs.forEach(doc => {
@@ -454,7 +454,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			});
 		}
 		else if (slots.nomeMentor && slots.emailMentor && !slots.telMentor) {
-			return dbUsers.where('EMAIL','==',slots.emailMentor).limit(1).get().then(docs => {
+			return dbUsers.where('EMAIL','==',slots.emailMentor.toLowerCase()).limit(1).get().then(docs => {
 				if(docs.size > 0) {
 					
 					docs.forEach(doc => {
@@ -469,9 +469,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			});
 		}
 		else if (slots.nomeMentor && slots.emailMentor && slots.telMentor && !slots.segmentoMentor){
-			dbUsers.where('EMAIL','==',slots.emailMentor).limit(1).get().then(docs => {
+			dbUsers.where('EMAIL','==',slots.emailMentor.toLowerCase()).limit(1).get().then(docs => {
 				if(docs.size == 0) {
-					console.log(`No document found with EMAIL = ${slots.emailMentor}`);
+					console.log(`No document found with EMAIL = ${slots.emailMentor.toLowerCase()}`);
 					configUser.get().then(documento => {
 						if(documento.exists) {
 							console.log(`This document exist and was retrieved successfully`);
@@ -484,7 +484,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 							console.log(`This document doesn't exist`);
 						}
 						user.NAME = slots.nomeMentor;
-						user.EMAIL = slots.emailMentor;
+						user.EMAIL = slots.emailMentor.toLowerCase();
 						user.CELULAR = slots.telMentor;
 						console.log(user);
 						const trySendUser = dbUsers.add(user);
@@ -584,7 +584,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 			agent.add('Diga-nos seu preço. Caso tenha escolhido "Gratuito", escreva 0');
 		} 
 		else {
-			const verifyEmail = dbUsers.where('EMAIL', '==', slots.emailMentor);
+			const verifyEmail = dbUsers.where('EMAIL', '==', slots.emailMentor.toLowerCase());
 			verifyEmail.get().then(snapshot => {
 				if (snapshot.size > 0) {
 					snapshot.forEach(doc => {
